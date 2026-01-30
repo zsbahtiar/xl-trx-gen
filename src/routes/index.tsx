@@ -10,6 +10,12 @@ import { TransactionForm } from "@/components/TransactionForm";
 
 export const Route = createFileRoute("/")({ component: App });
 
+// Default: SELL APEX at 123, bought at 118, 60 lots
+// Amount = 123 × 60 × 100 = 738,000
+// Fee (0.35%) = 2,583
+// Net = 738,000 - 2,583 = 735,417
+// Realized Gain = (123 - 118) × 60 × 100 = 30,000
+// Gain % = (123 - 118) / 118 × 100 = 4.24%
 const defaultData: TransactionData = {
   type: "SELL",
   ticker: "APEX",
@@ -19,10 +25,11 @@ const defaultData: TransactionData = {
   price: 123,
   lotDone: 60,
   amount: 738000,
-  totalFee: 1845,
-  netAmount: 736155,
-  realizedGain: 28194.6,
-  realizedGainPercent: 3.98,
+  totalFee: 2583,
+  netAmount: 735417,
+  buyPrice: 118,
+  realizedGain: 30000,
+  realizedGainPercent: 4.24,
   iconUrl: null,
 };
 
@@ -35,21 +42,31 @@ function App() {
     setData((prev) => {
       const updated = { ...prev, ...partial };
 
+      // Auto-calculate Amount
       if ("price" in partial || "lotDone" in partial) {
         updated.amount = updated.price * updated.lotDone * 100;
       }
 
-      if (
-        "price" in partial ||
-        "lotDone" in partial ||
-        "totalFee" in partial ||
-        "type" in partial
-      ) {
-        if (updated.type === "SELL") {
-          updated.netAmount = updated.amount - updated.totalFee;
-        } else {
-          updated.netAmount = updated.amount + updated.totalFee;
-        }
+      // Auto-calculate Total Fee (Stockbit rates)
+      // BUY: 0.15%, SELL: 0.25% + 0.1% PPh = 0.35%
+      if ("price" in partial || "lotDone" in partial || "type" in partial) {
+        const feeRate = updated.type === "SELL" ? 0.0035 : 0.0015;
+        updated.totalFee = Math.round(updated.amount * feeRate);
+      }
+
+      // Auto-calculate Net Amount
+      if (updated.type === "SELL") {
+        updated.netAmount = updated.amount - updated.totalFee;
+      } else {
+        updated.netAmount = updated.amount + updated.totalFee;
+      }
+
+      // Auto-calculate Realized Gain for SELL
+      if (updated.type === "SELL" && updated.buyPrice > 0) {
+        // Realized Gain = (Sell Price - Buy Price) × Lot × 100
+        updated.realizedGain = (updated.price - updated.buyPrice) * updated.lotDone * 100;
+        // Gain % = ((Sell Price - Buy Price) / Buy Price) × 100
+        updated.realizedGainPercent = ((updated.price - updated.buyPrice) / updated.buyPrice) * 100;
       }
 
       return updated;

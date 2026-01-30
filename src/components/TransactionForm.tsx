@@ -201,7 +201,7 @@ export function TransactionForm({ data, onChange }: TransactionFormProps) {
           </label>
           <input
             type="text"
-            value={new Intl.NumberFormat("id-ID").format(data.amount)}
+            value={new Intl.NumberFormat("en-US").format(data.amount)}
             readOnly
             className={readOnlyClass}
             style={{
@@ -214,30 +214,33 @@ export function TransactionForm({ data, onChange }: TransactionFormProps) {
       </div>
 
       {/* Row 4: Total Fee, Net Amount */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <div>
           <label
             className={labelClass}
             style={{ color: "var(--spectrum-gray-800)" }}
           >
-            Total Fee
+            Total Fee{" "}
+            <span
+              style={{ color: "var(--spectrum-gray-500)", fontWeight: 400 }}
+            >
+              ({data.type === "SELL" ? "0.35%" : "0.15%"})
+            </span>
           </label>
           <input
-            type="number"
-            value={data.totalFee || ""}
-            onChange={(e) => handleNumberChange("totalFee", e.target.value)}
-            placeholder="0"
-            min="0"
-            className={inputClass}
+            type="text"
+            value={new Intl.NumberFormat("en-US").format(data.totalFee)}
+            readOnly
+            className={readOnlyClass}
             style={{
-              backgroundColor: "var(--input)",
-              borderColor: "var(--input-border)",
-              color: "var(--foreground)",
+              backgroundColor: "var(--spectrum-gray-200)",
+              borderColor: "var(--spectrum-gray-300)",
+              color: "var(--spectrum-gray-700)",
             }}
           />
         </div>
 
-        <div className="col-span-2">
+        <div>
           <label
             className={labelClass}
             style={{ color: "var(--spectrum-gray-800)" }}
@@ -251,7 +254,7 @@ export function TransactionForm({ data, onChange }: TransactionFormProps) {
           </label>
           <input
             type="text"
-            value={new Intl.NumberFormat("id-ID").format(data.netAmount)}
+            value={new Intl.NumberFormat("en-US").format(data.netAmount)}
             readOnly
             className={readOnlyClass}
             style={{
@@ -263,23 +266,24 @@ export function TransactionForm({ data, onChange }: TransactionFormProps) {
         </div>
       </div>
 
-      {/* Row 5: Realized Gain, Gain % (SELL only) */}
+      {/* Row 5: Buy Price, Realized Gain, Gain % (SELL only) */}
       {data.type === "SELL" && (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <div>
             <label
               className={labelClass}
               style={{ color: "var(--spectrum-gray-800)" }}
             >
-              Realized Gain
+              Buy Price
             </label>
             <input
               type="number"
-              value={data.realizedGain || ""}
+              value={data.buyPrice || ""}
               onChange={(e) =>
-                handleNumberChange("realizedGain", e.target.value)
+                handleNumberChange("buyPrice", e.target.value)
               }
               placeholder="0"
+              min="0"
               className={inputClass}
               style={{
                 backgroundColor: "var(--input)",
@@ -294,21 +298,47 @@ export function TransactionForm({ data, onChange }: TransactionFormProps) {
               className={labelClass}
               style={{ color: "var(--spectrum-gray-800)" }}
             >
-              Gain %
+              Realized Gain{" "}
+              <span
+                style={{ color: "var(--spectrum-gray-500)", fontWeight: 400 }}
+              >
+                (auto)
+              </span>
             </label>
             <input
-              type="number"
-              value={data.realizedGainPercent || ""}
-              onChange={(e) =>
-                handleNumberChange("realizedGainPercent", e.target.value)
-              }
-              placeholder="0"
-              step="0.01"
-              className={inputClass}
+              type="text"
+              value={new Intl.NumberFormat("en-US").format(data.realizedGain)}
+              readOnly
+              className={readOnlyClass}
               style={{
-                backgroundColor: "var(--input)",
-                borderColor: "var(--input-border)",
-                color: "var(--foreground)",
+                backgroundColor: "var(--spectrum-gray-200)",
+                borderColor: "var(--spectrum-gray-300)",
+                color: data.realizedGain >= 0 ? "var(--spectrum-green-500)" : "var(--spectrum-red-500)",
+              }}
+            />
+          </div>
+
+          <div>
+            <label
+              className={labelClass}
+              style={{ color: "var(--spectrum-gray-800)" }}
+            >
+              Gain %{" "}
+              <span
+                style={{ color: "var(--spectrum-gray-500)", fontWeight: 400 }}
+              >
+                (auto)
+              </span>
+            </label>
+            <input
+              type="text"
+              value={`${data.realizedGainPercent >= 0 ? "+" : ""}${data.realizedGainPercent.toFixed(2)}%`}
+              readOnly
+              className={readOnlyClass}
+              style={{
+                backgroundColor: "var(--spectrum-gray-200)",
+                borderColor: "var(--spectrum-gray-300)",
+                color: data.realizedGainPercent >= 0 ? "var(--spectrum-green-500)" : "var(--spectrum-red-500)",
               }}
             />
           </div>

@@ -1,15 +1,15 @@
 /**
- * Format number with thousand separator (Indonesian style: 1.234.567)
+ * Format number with thousand separator (Stockbit style: 1,234,567)
  */
 export function formatNumber(value: number): string {
-  return new Intl.NumberFormat('id-ID').format(value)
+  return new Intl.NumberFormat('en-US').format(value)
 }
 
 /**
  * Format number with decimal places
  */
 export function formatDecimal(value: number, decimals: number = 2): string {
-  return new Intl.NumberFormat('id-ID', {
+  return new Intl.NumberFormat('en-US', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   }).format(value)
@@ -40,8 +40,8 @@ export function formatDate(date: Date): string {
  * Parse formatted number string back to number
  */
 export function parseFormattedNumber(value: string): number {
-  // Remove thousand separators (dots in Indonesian format)
-  const cleaned = value.replace(/\./g, '').replace(',', '.')
+  // Remove thousand separators (commas in Stockbit format)
+  const cleaned = value.replace(/,/g, '')
   return parseFloat(cleaned) || 0
 }
 

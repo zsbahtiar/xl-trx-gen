@@ -13,6 +13,7 @@ export interface TransactionData {
   amount: number
   totalFee: number
   netAmount: number
+  buyPrice: number // untuk auto-calculate realized gain
   realizedGain: number
   realizedGainPercent: number
   iconUrl?: string | null
